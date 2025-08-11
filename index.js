@@ -8,6 +8,10 @@ const API_KEY = "sk-dcdf1a21ec2f4da3b9aed3a6520661e9"; // твой ключ
 const API_URL = "https://api.deepseek.com/v1/chat/completions"; // DeepSeek API
 const MODEL = "deepseek-chat"; // DeepSeek v3
 
+app.get("/", (req, res) => {
+  res.send("Proxy работает, используй POST /v1/chat/completions");
+});
+
 app.post("/v1/chat/completions", async (req, res) => {
   try {
     const response = await fetch(API_URL, {
