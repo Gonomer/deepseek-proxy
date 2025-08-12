@@ -38,11 +38,18 @@ app.post("/v1/chat/completions", async (req, res) => {
       body: JSON.stringify(req.body),
     }, 15000);
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("DeepSeek API error:", response.status, errorText);
+      return res.status(response.status).json({ error: errorText });
+    }
+
     const data = await response.json();
+    console.log("DeepSeek API success:", data);
     res.status(response.status).json(data);
   } catch (err) {
-    console.error("Proxy error:", err.message);
-    res.status(500).json({ error: "Proxy network error or timeout" });
+    console.error("Proxy network error:", err);
+    res.status(500).json({ error: "Ошибка сети прокси или тайм-аут" });
   }
 });
 

@@ -1,7 +1,7 @@
 {
   "name": "deepseek-proxy",
-  "version": "1.0.0",
-  "description": "Proxy for Janitor AI with CORS and timeout",
+  "version": "1.0.1",
+  "description": "Proxy for Janitor AI with extended logging",
   "main": "index.js",
   "type": "module",
   "scripts": {
