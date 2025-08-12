@@ -15,7 +15,8 @@ app.use((req, res, next) => {
   next();
 });
 
-const API_KEY = process.env.API_KEY || "тут_твой_ключ";
+// Используем .trim() для удаления лишних пробелов и символов
+const API_KEY = (process.env.API_KEY || "sk-dcdf1a21ec2f4da3b9aed3a6520661e9").trim();
 const API_URL = "https://api.deepseek.com/v1/chat/completions";
 
 function fetchWithTimeout(url, options = {}, timeout = 15000) {
