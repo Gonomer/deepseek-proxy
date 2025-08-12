@@ -4,34 +4,50 @@ import fetch from "node-fetch";
 const app = express();
 app.use(express.json());
 
-const API_KEY = "sk-dcdf1a21ec2f4da3b9aed3a6520661e9"; // твой ключ
-const API_URL = "https://api.deepseek.com/v1/chat/completions"; // DeepSeek API
-const MODEL = "deepseek-chat"; // DeepSeek v3
-
-app.get("/", (req, res) => {
-  res.send("Proxy работает, используй POST /v1/chat/completions");
+// CORS middleware
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
 });
+
+const API_KEY = process.env.API_KEY || "тут_твой_ключ";
+const API_URL = "https://api.deepseek.com/v1/chat/completions";
+
+function fetchWithTimeout(url, options = {}, timeout = 15000) {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout")), timeout)
+    ),
+  ]);
+}
 
 app.post("/v1/chat/completions", async (req, res) => {
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetchWithTimeout(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: req.body.messages
-      })
-    });
+      body: JSON.stringify(req.body),
+    }, 15000);
 
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Proxy error" });
+    console.error("Proxy error:", err.message);
+    res.status(500).json({ error: "Proxy network error or timeout" });
   }
+});
+
+app.get("/", (req, res) => {
+  res.send("Proxy работает");
 });
 
 const PORT = process.env.PORT || 3000;
